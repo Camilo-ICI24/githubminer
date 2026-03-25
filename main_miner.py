@@ -210,15 +210,17 @@ def main():
     ranking_py = ranking(palabras_py)
     ranking_java = ranking(palabras_java)
 
+    os.makedirs("visualizador", exist_ok=True)
+
     with open("info_repos.json", 'w') as inf:
         print("Creando archivo 'info_repos.json'. Almacenando datos....")
         json.dump(info, inf, indent=4)
 
-    with open("mas_usados_py.json", 'w') as result_py:
+    with open("visualizador/mas_usados_py.json", 'w') as result_py:
         print("Creando archivo 'mas_usados_py.json'. Almacenando datos....")
         json.dump(ranking_py, result_py, indent=4)
 
-    with open('mas_usados_java.json', 'w') as result_java:
+    with open('visualizador/mas_usados_java.json', 'w') as result_java:
         print("Creando archivo 'mas_usados_java.json'. Almacenando datos....")
         json.dump(ranking_java, result_java, indent=4)
 
