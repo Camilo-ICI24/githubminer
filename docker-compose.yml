@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  miner:
+    build:
+      context: ./miner
+      dockerfile: Dockerfile
+    container_name: miner
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - visualizador-data:/app/visualizador
+    restart: unless-stopped
+
+  visualizador:
+    build:
+      context: ./visualizador
+      dockerfile: Dockerfile
+    container_name: visualizador
+    ports:
+      - "8080:80"
+    volumes:
+      - visualizador-data:/usr/share/nginx/html
+    restart: unless-stopped
+
+volumes:
+  visualizador-data:
