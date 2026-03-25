@@ -1,3 +1,14 @@
+<!--
+index.html
+Visualizador gráfico de las palabras más populares en métodos de Python y Java.
+
+Contiene:
+- Un título y descripción del gráfico.
+- Un input interactivo para definir cuántas palabras mostrar en el gráfico (Top N).
+- Un lienzo para mostrar los gráficos.
+- Enlace a script.js para la lógica interna de los gráficos.
+-->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -27,7 +38,6 @@
             width: 60px;
         }
 
-        /* 🔥 contenedor de ambos gráficos */
         .charts {
             display: flex;
             justify-content: center;
@@ -51,6 +61,7 @@
     <h1>📊 Ranking de palabras (Python vs Java)</h1>
 
     <div class="controls">
+    <!-- Controles para definir cuántas palabras mostrar en el gráfico -->
         <label>Top N:</label>
         <input type="number" id="topN" value="10" min="1" max="50">
     </div>
@@ -59,6 +70,7 @@
         <div class="chart-container">
             <h2>Python</h2>
             <canvas id="graficoPy"></canvas>
+            <!-- Canvas donde Chart.js dibuja el gráfico -->
         </div>
 
         <div class="chart-container">

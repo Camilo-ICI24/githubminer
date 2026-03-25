@@ -1,3 +1,22 @@
+"""
+main_miner.py
+
+Este código se encarga de realizar el proceso de minería de datos, accediendo a diferentes repositorios
+almacenados en GitHub mediante llamadas a la API para rescatar aquellos que posean mayor valoración, 
+cuyo lenguaje de programación sea Python y Java, generando un ranking de las palabras más utilizadas
+para definir funciones o métodos en estos lenguajes. La información fundamental de cada repositorio es
+almacenada en un archivo JSON que es accedido más tarde por el visualizador gráfico, siendo desplegado
+por una interfaz web.
+
+Requisitos:
+-Python >= 3.8
+-Librerías: io, collections, requests, os, json, re, zipfile, time.
+
+Uso:
+-Establecer una variable de entorno GITHUB_TOKEN con el token personal de GitHub
+-Ejecutar el comando python main_miner.py
+"""
+
 from io import BytesIO
 from collections import Counter
 
@@ -8,9 +27,22 @@ import re
 import zipfile
 import time
 
+# Token de acceso para realizar las llamadas a la API de GitHub
 token_acceso = os.getenv("GITHUB_TOKEN")
 
 def descargar_info_repo(dueño, repo, headers):
+    """
+    Obtiene la información necesaria de cada repositorio.
+
+    Parámetros:
+    -dueño: usuario de GitHub dueño del repositorio
+    -repo: nombre del repositorio
+    -headers: cabeceras HTTP para autenticación y acceso a la API
+
+    Retorna:
+    -Diccionario con la información extraída del repositorio, como nombre, valoración con estrellas, 
+    enlace HTML, lenguaje de programación y nombre del usuario dueño.
+    """
     url_desc = f"https://api.github.com/repos/{dueño}/{repo}"
     response = requests.get(url_desc, headers)
 
@@ -45,6 +77,19 @@ def descargar_info_repo(dueño, repo, headers):
     return save
 
 def analizar_zip_repo(dueño, repo, headers):
+    """
+    Descarga el repositorio en formato ZIP, analiza los archivos Python y Java y extrae sus funciones
+    y métodos.
+
+    Parámetros:
+    -dueño: usuario de GitHub dueño del repositorio
+    -repo: nombre del repositorio
+    -headers: cabeceras HTTP para autenticación y acceso a la API
+
+    Retorna:
+    -resultado_py: Lista que contiene todas las palabras de las funciones en Python
+    -resultado_java: Lista que contiene todas las palabras de las funciones en Java
+    """
     url_zip = f"https://api.github.com/repos/{dueño}/{repo}/zipball"
 
     resp = requests.get(url_zip, headers)
@@ -83,6 +128,15 @@ def analizar_zip_repo(dueño, repo, headers):
     return resultado_py, resultado_java
 
 def extraer_palabras_python(texto):
+    """
+    Analiza y extrae las palabras de las funciones de un archivo Python.
+
+    Parámetros:
+    -texto: Archivo Python incluído en el repositorio.
+
+    Retorna:
+    -palabras: Lista de palabras extraídas de todas las funciones.
+    """
     palabras = []
 
     for linea in texto:
@@ -94,6 +148,15 @@ def extraer_palabras_python(texto):
     return palabras
 
 def extraer_palabras_java(texto):
+    """
+    Analiza y extrae las palabras de las funciones de un archivo Java.
+
+    Parámetros:
+    -texto: Archivo Java incluído en el repositorio.
+
+    Retorna:
+    -palabras: Lista de palabras extraídas de todas las funciones.
+    """
     palabras = []
 
     for linea in texto:
@@ -115,6 +178,17 @@ def extraer_palabras_java(texto):
     return palabras
 
 def cooldown_check(headers, recurso='core'):
+    """
+    Verifica si se han consumido todas las llamadas a la API de GitHub.
+
+    Parámetros:
+    -headers: cabecera HTTP para autenticación y acceso a la API.
+    -recurso: tipo de consultas que pueden realizarse desde la API.
+
+    Retorna:
+    -false: Booleano que indica que existen consultas posibles, permitiendo que el análisis de archivos
+    continúe.
+    """
     url_consultas = "https://api.github.com/rate_limit"
     resp = requests.get(url_consultas, headers=headers)
     if resp.status_code != 200:
@@ -130,6 +204,18 @@ def cooldown_check(headers, recurso='core'):
     return False
 
 def miner(leng, estrellas_minimas=90000, max_pages=1):
+    """
+    Busca repositorios en GitHub desde la API según su valoración mínima y lenguaje de programación, 
+    recuperando su información básica.
+
+    Parámetros:
+    -leng: lenguaje de programación de interés.
+    -estrellas_minimas: valoración mínima que deben tener los repositorios a analizar.
+    -max_pages: cantidad de páginas que se accederán para obtener los datos.
+
+    Retorna:
+    -repos_totales: Lista que contiene toda la información de cada repositorio extraído.
+    """
     headers = {
     "Authorization": f"Bearer {token_acceso}",
     "Accept": "application/vnd.github.v3+json"
@@ -168,6 +254,15 @@ def miner(leng, estrellas_minimas=90000, max_pages=1):
     return repos_totales
 
 def ranking(elemento):
+    """
+    Genera un top ordenado con las 10 palabras más frecuentes en cada lenguaje.
+
+    Parámetros:
+    -elemento: lista de palabras que se ordenarán según frecuencia.
+
+    Retorna:
+    -lista ordenada de menor a mayor frecuencia de cada palabra.
+    """
     if not elemento:
         return []
     
